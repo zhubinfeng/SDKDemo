@@ -1,4 +1,8 @@
->第一步,cocopods安装如下三方库 
+>##第一步,添加库
+>
+>1，将LTGameSDK.framework拖入项目中
+>
+>2，cocopods安装如下三方库 
 
 ```
 use_frameworks!
@@ -12,7 +16,7 @@ pod 'FBSDKCoreKit', '~> 4.38.0'
 pod 'FBSDKLoginKit', '~> 4.38.0'
 pod 'WechatOpenSDK'
 ```
->第二步，初始化LT应用
+>##第二步，初始化LT应用
 
 1，在APPdelegate.h文件中导入头文件
 
@@ -24,19 +28,20 @@ pod 'WechatOpenSDK'
 [[LTSDKLoginManager sharedInstance] registLTPlatformAppID:@"xxxx" withAppkey:@"xxxx"];
 ```
 
->第三步，集成对应的第三平台<br>
+>##第三步，集成对应的第三平台
 
 >URL Schemes 的添加方法
 
 >![](https://github.com/zhubinfeng/SDKDemo/blob/master/URL_Schemes.png?raw=true)
 >
->配置-ObjC方法 Build Setting -> Other Linker Flags 添加-ObjC
+>配置-ObjC方法 <br>
+>Build Setting -> Other Linker Flags 添加-ObjC
 >![](https://github.com/zhubinfeng/SDKDemo/blob/master/otherLinkerFlags.png?raw=true)
 
 >**一 Facebook集成**
 >>1,添加URL scheme fbxxxx
 >>
->>2，在info.plist中添加
+>>2，在info.plist中dict节点下添加
 >>
 >>
          <key>FacebookAppID</key>
@@ -53,10 +58,13 @@ pod 'WechatOpenSDK'
 >>
 >>
 >>3，配置-ObjC
+>>
 >>4,在APPdelegate.h文件中添加
 >>
 >>```
->>-(BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options{
+>>-(BOOL)application:(UIApplication *)app
+           openURL:(NSURL *)url
+           options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options{
     [[LTSDKLoginManager sharedInstance] application:app openURL:url options:options];
     return YES;
 }
@@ -69,38 +77,63 @@ pod 'WechatOpenSDK'
 >>```
 >>
 >>6，登录调用
+>>
 >>```
 >>[[LTSDKLoginManager sharedInstance] facebookLogin:^(LTUser * _Nonnull loginUser) {
-        NSString *lt_UID = loginUser.LT_UID;
-        NSString *apiToken = loginUser.apiToken;
-    } withUIViewController:self];
+        if (loginUser.stateCode == LTCodeTypeSuccess) {
+            if (loginUser.userType == LTUserTypeTourist) {
+                NSLog(@"游客登录成功");
+            }else{
+                NSString *lt_UID = loginUser.LT_UID;
+                NSString *apiToken = loginUser.apiToken;
+            }
+        }else if (loginUser.stateCode == LTCodeTypeCancel){
+            NSLog(@"用户取消了登录");
+        }else if (loginUser.stateCode == LTCodeTypeFailed){
+            NSLog(@"登录失败");
+        }
+    }];
 >>```
 >>
 
 >**二 Google集成**
 >>1,添加URL scheme com.googleusercontent.apps.xxxx
 >>
->>3，配置-ObjC
+>>2，配置-ObjC
 >>
->>4，在APPdelegate.h中初始化
+>>3，在要使用登录UIViewCcontroller中调用初始化
 >>
 >>```
->>[[LTSDKLoginManager sharedInstance] registGooglePlatform:@"xxxx.apps.googleusercontent.com" withUIViewController:self];
+>>[[LTSDKLoginManager sharedInstance] registGooglePlatform:@"xxxx.apps.googleusercontent.com"
+>>withUIViewController:self];
 >>```
 >>
->>6，登录调用
->>```[[LTSDKLoginManager sharedInstance] googleLoginGetLTID:^(LTUser * _Nonnull loginUser) {
-        NSString *lt_UID = loginUser.LT_UID;
-        NSString *apiToken = loginUser.apiToken;
-    }];
+>>4，登录调用
+>>
+>>```
+>>[[LTSDKLoginManager sharedInstance] googleLoginGetLTID:^(LTUser * _Nonnull loginUser) {
+        if (loginUser.stateCode == LTCodeTypeSuccess) {
+            if (loginUser.userType == LTUserTypeTourist) {
+                NSLog(@"游客登录成功");
+            }else{
+                NSString *lt_UID = loginUser.LT_UID;
+                NSString *apiToken = loginUser.apiToken;
+            }
+        }else if (loginUser.stateCode == LTCodeTypeCancel){
+            NSLog(@"用户取消了登录");
+        }else if (loginUser.stateCode == LTCodeTypeFailed){
+            NSLog(@"登录失败");
+        }    }];
 >>```
 
 >**三 微信集成**
->>1,添加URL schemes xxxx
+>>1,添加URL schemes xxxx<br>
 >>2,在APPdelegate.h文件中添加
 >>
 >>```
->>-(BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options{
+>>-(BOOL)application:(UIApplication *)app
+           openURL:(NSURL *)url
+           options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options{
     [[LTSDKLoginManager sharedInstance] application:app openURL:url options:options];
     return YES;
 }
@@ -113,11 +146,21 @@ pod 'WechatOpenSDK'
 >>```
 >>
 >>4，登录调用
+>>
 >>```
 >>[[LTSDKLoginManager sharedInstance] weChatLogin:^(LTUser * _Nonnull loginUser) {
-        NSString *lt_UID = loginUser.LT_UID;
-        NSString *apiToken = loginUser.apiToken;
-    }];
+		 if (loginUser.stateCode == LTCodeTypeSuccess) {
+            if (loginUser.userType == LTUserTypeTourist) {
+                NSLog(@"游客登录成功");
+            }else{
+                NSString *lt_UID = loginUser.LT_UID;
+                NSString *apiToken = loginUser.apiToken;
+            }
+        }else if (loginUser.stateCode == LTCodeTypeCancel){
+            NSLog(@"用户取消了登录");
+        }else if (loginUser.stateCode == LTCodeTypeFailed){
+            NSLog(@"登录失败");
+        }    }];
 >>```
 
 
@@ -126,7 +169,11 @@ pod 'WechatOpenSDK'
 >>![](https://github.com/zhubinfeng/SDKDemo/blob/master/frameworkAdd.png?raw=true)
 >>
 >>2，配加依赖包
->>>“Security.framework”,“libiconv.tdb”，“SystemConfiguration.framework”，“CoreGraphics.Framework”、“libsqlit.3.tdb”、“CoreTelephony.framework”、“libz.tdb”
+>>
+>>>“Security.framework”,“libiconv.tdb”，“SystemConfiguration.framework”，
+>>>“CoreGraphics.Framework”、“libsqlit.3.tdb”、
+>>>“CoreTelephony.framework”、“libz.tdb”
+>>>
 >>![](https://github.com/zhubinfeng/SDKDemo/blob/master/addLinkFramework.png?raw=true)
 >>
 >>3，配置-fobjc-arc(与配置-ObjC方法相同)
@@ -162,7 +209,9 @@ pod 'WechatOpenSDK'
 >>6,在APPdelegate.h文件中添加
 >>
 >>```
->>-(BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options{
+>>-(BOOL)application:(UIApplication *)app
+           openURL:(NSURL *)url
+           options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options{
     [[LTSDKLoginManager sharedInstance] application:app openURL:url options:options];
     return YES;
 }
@@ -175,9 +224,38 @@ pod 'WechatOpenSDK'
 >>```
 >>
 >>8，登录处调用
+>>
 >>```
 >>[[LTSDKLoginManager sharedInstance] QQLogin:^(LTUser * _Nonnull loginUser) {
-        NSString *lt_UID = loginUser.LT_UID;
-        NSString *apiToken = loginUser.apiToken;
-    }];
+		  if (loginUser.stateCode == LTCodeTypeSuccess) {
+            if (loginUser.userType == LTUserTypeTourist) {
+                NSLog(@"游客登录成功");
+            }else{
+                NSString *lt_UID = loginUser.LT_UID;
+                NSString *apiToken = loginUser.apiToken;
+            }
+        }else if (loginUser.stateCode == LTCodeTypeCancel){
+            NSLog(@"用户取消了登录");
+        }else if (loginUser.stateCode == LTCodeTypeFailed){
+            NSLog(@"登录失败");
+        }    }];
 >>```
+
+>##第四步，如果使用SDK提供的登录UI，使用如下接口调用
+>
+>```
+>[[LTSDKLoginManager sharedInstance] showLoginManagerUI:self withBlock:^(LTUser * _Nonnull loginUser) {
+        if (loginUser.stateCode == LTCodeTypeSuccess) {
+            if (loginUser.userType == LTUserTypeTourist) {
+                NSLog(@"游客登录成功");
+            }else{
+                NSString *lt_UID = loginUser.LT_UID;
+                NSString *apiToken = loginUser.apiToken;
+            }
+        }else if (loginUser.stateCode == LTCodeTypeCancel){
+            NSLog(@"用户取消了登录");
+        }else if (loginUser.stateCode == LTCodeTypeFailed){
+            NSLog(@"登录失败");
+        }
+    }];
+>```
